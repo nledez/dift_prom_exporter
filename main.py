@@ -60,16 +60,19 @@ def lookup_token(config, token):
 
 
 def init_metrics(metrics):
-    metrics['gt'] = Gauge('token_drift',
-                          'Time remind before token expiration',
-                          ['token', 'unit'])
+    metrics['gts'] = Gauge('token_drift_seconds',
+                          'Seconds remind before token expiration',
+                          ['token'])
+    metrics['gtd'] = Gauge('token_drift_days',
+                          'Days remind before token expiration',
+                          ['token'])
     # metrics['gc'] = Gauge('certificate_drift', 'Seconds remind before certificate expiration')
 
 
 def update_metrics(metrics, data):
     for name, values in data.items():
-        metrics['gt'].labels(name, 'seconds').set(values['s'])
-        metrics['gt'].labels(name, 'days').set(values['d'])
+        metrics['gts'].labels(name).set(values['s'])
+        metrics['gtd'].labels(name).set(values['d'])
     # metrics['gc'].inc(random.random())
 
 

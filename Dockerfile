@@ -5,5 +5,6 @@ RUN pip install -r requirements.txt
 
 COPY main.py ./
 
+EXPOSE 8000
 ENTRYPOINT [ "python" ]
 CMD [ "main.py" ]
