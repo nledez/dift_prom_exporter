@@ -59,7 +59,7 @@ def lookup_token(config, token):
         raise Unauthorized("May be expired token")
 
 
-def init_metrics(metrics, data):
+def init_metrics(metrics):
     metrics['gt'] = Gauge('token_drift',
                           'Time remind before token expiration',
                           ['token', 'unit'])
@@ -74,14 +74,14 @@ def update_metrics(metrics, data):
 
 
 if __name__ == '__main__':
-    data = collect_token_drift()
+    scrape_interval = int(os.environ.get('INTERVAL', 300))
     # Start up the server to expose the metrics.
     metrics = {}
-    init_metrics(metrics, data)
+    init_metrics(metrics)
     start_http_server(8000)
 
     # Update metrics
     while True:
         data = collect_token_drift()
         update_metrics(metrics, data)
-        time.sleep(5)
+        time.sleep(scrape_interval)
