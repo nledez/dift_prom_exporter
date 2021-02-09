@@ -6,3 +6,6 @@ tokens:
   vaultbot: s.Ea0yah2ej4eathiMaethaphu
   boundary: s.ke0KiphiuZ3die4shai4axei
   prometheus: s.oJee9Eech6Yaeghee6Aequoa
+tls:
+  google: www.google.com
+  duckduckgo: duckduckgo.com

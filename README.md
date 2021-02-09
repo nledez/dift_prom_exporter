@@ -3,15 +3,16 @@ Launch it
 
 ```
 cp drift_prom_exporter.yml.sample drift_prom_exporter.yml
-docker container run --volume "`pwd`/drift_prom_exporter.yml:/drift_prom_exporter.yml" --env "CONFIG=/drift_prom_exporter.yml" --publish 8000:8000 nledez/drift_prom_exporter:latest
+make docker_build
+make docker_run
 ```
 
 
-Launch it
-=========
+Test it
+=======
 
 ```
-curl http://127.0.0.1:8000
+make curl
 ```
 
 
@@ -34,6 +35,14 @@ token_drift_days{token="apps"} 28.0
 token_drift_days{token="prometheus"} 29.0
 token_drift_days{token="transit-boundary"} -1.0
 token_drift_days{token="token-lookup"} 31.0
+# HELP certificate_drift_seconds Seconds remind before certificate expiration
+# TYPE certificate_drift_seconds gauge
+certificate_drift_seconds{certificate="google"} 2.80579239e+08
+certificate_drift_seconds{certificate="duckduckgo"} 2.3625639e+07
+# HELP certificate_drift_days Days remind before certificate expiration
+# TYPE certificate_drift_days gauge
+certificate_drift_days{certificate="google"} 3247.0
+certificate_drift_days{certificate="duckduckgo"} 273.0
 ```
 
 
