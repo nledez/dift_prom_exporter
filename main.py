@@ -32,25 +32,29 @@ def collect_certificates_drift():
     config = load(config_path)
     data = {}
 
-    for name, fqdn in config.get('tls', {}).items():
+    for name, tls_data in config.get('tls', {}).items():
         data[name] = {}
         data[name]['s'] = -1
         data[name]['d'] = -1
         try:
-            expire_datetime = lookup_certificate(config, fqdn)
+            expire_datetime = lookup_certificate(config, name)
             expire = datetime.strptime(expire_datetime.decode('ascii'), '%Y%m%d%H%M%SZ')
             now = datetime.now()
             drift = expire - now
             data[name]['s'] = int(drift.total_seconds())
             data[name]['d'] = int(drift.days)
+        except ConnectionRefusedError:
+            pass
         except socket.gaierror:
             pass
 
     return data
 
 
-def lookup_certificate(config, fqdn):
-    cert = ssl.get_server_certificate((fqdn, 443))
+def lookup_certificate(config, name):
+    fqdn = config['tls'][name]['fqdn']
+    port = config['tls'][name].get('port', 443)
+    cert = ssl.get_server_certificate((fqdn, port))
     x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
     return x509.get_notAfter()
 
