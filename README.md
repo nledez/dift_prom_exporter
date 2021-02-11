@@ -61,3 +61,13 @@ scrape_configs:
     params:
       format: ["prometheus"]
 ```
+
+
+Grafana
+=======
+
+You can import `grafana_drift.json` dashboard in your Grafana. Now you can have their graph:
+
+![Token drift in days](sc_tokens_in_days.png)
+
+![Certificate drift in seconds](sc_certificates_in_seconds.png)
