@@ -37,13 +37,15 @@ def collect_certificates_drift():
         data[name]['s'] = -1
         data[name]['d'] = -1
         try:
-            expire_datetime = lookup_certificate(config, name)
-            expire = datetime.strptime(expire_datetime.decode('ascii'), '%Y%m%d%H%M%SZ')
+            expire = lookup_certificate(config, name)
             now = datetime.now()
             drift = expire - now
             data[name]['s'] = int(drift.total_seconds())
             data[name]['d'] = int(drift.days)
         except ConnectionRefusedError:
+            pass
+        except ssl.SSLCertVerificationError as e:
+            print(e)
             pass
         except socket.gaierror:
             pass
@@ -54,9 +56,18 @@ def collect_certificates_drift():
 def lookup_certificate(config, name):
     fqdn = config['tls'][name]['fqdn']
     port = config['tls'][name].get('port', 443)
-    cert = ssl.get_server_certificate((fqdn, port))
-    x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-    return x509.get_notAfter()
+    context = ssl.create_default_context()
+    conn = socket.create_connection((fqdn, port))
+    sock = context.wrap_socket(conn, server_hostname=fqdn)
+    sock.settimeout(10)
+    try:
+        der_cert = sock.getpeercert(True)
+    finally:
+        sock.close()
+    certificate = ssl.DER_cert_to_PEM_cert(der_cert)
+    x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate)
+
+    return datetime.strptime(x509.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ')
 
 
 def collect_token_drift():
